@@ -113,8 +113,3 @@ python -m unittest discover -s tests -p "test_*.py"
 
 </details>
 
-## Credits
-
-The deck is inspired by SL-1200 controls and [Sungwoo Choi’s independent Turntable(1) concept](https://nothing.community/d/57859-product-design-concept-turntable1), using artwork supplied for this project. Record Room is not endorsed by Sample Digging, Nothing, Technics, Akai, Roland or Native Instruments.
-
-Self-hosted Manrope and Caveat use the SIL Open Font License; licences are in `assets/`. Desktop runtime and audio-tool notices ship in the app’s resources.

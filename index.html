@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6f7f6"><title>Record Room — your listening crate</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="listening.css"><link rel="stylesheet" href="minimal.css"><link rel="stylesheet" href="supplied.css">
+</head>
+<body>
+  <svg class="svg-library" aria-hidden="true"><defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="4"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="m15 6-7 6 7 6M5 5v14"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 6 7 6-7 6M19 5v14"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 19V5h7l3 3h8v11Z"/></symbol>
+    <symbol id="i-midi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7 13h.01M8 8h.01M12 6h.01M16 8h.01M17 13h.01" stroke-width="3"/><path d="M10 20v-3h4v3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4Z"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 6h3c4 0 8 12 12 12h3M17 14l4 4-4 4M3 18h3c1.5 0 3-1.7 4-4M14 10c1-2 3-4 4-4h3M17 2l4 4-4 4"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M4 13v8h16v-8"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 5h16M4 10h10M4 15h7M15 15l3 3 3-3M18 11v7"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+  </defs></svg>
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="Record Room home"><span class="logo-disc"></span>Record Room<span class="prototype">Prototype</span></a>
+    <nav aria-label="Library tools">
+      <details class="crate-tools" data-listening-shortcuts="off" id="crate-tools"><summary><svg><use href="#i-folder"/></svg><span>Crate</span><svg class="chevron"><use href="#i-chevron"/></svg></summary><div class="crate-tools-menu"><button id="import-button"><svg><use href="#i-folder"/></svg>Import crate</button><button id="export-button"><svg><use href="#i-export"/></svg>Export crate</button><button id="download-crate" class="download-crate"><svg><use href="#i-download"/></svg><span>Download this crate</span></button><p>Import or back up records. Download the crate shown by your filters.</p></div></details>
+      <button id="downloads-button" aria-expanded="false" aria-controls="download-panel"><svg><use href="#i-queue"/></svg><span class="desktop-label">Downloads</span><span class="phone-label">Audio</span><span id="download-count" hidden>0</span></button>
+      <button id="midi-button" aria-expanded="false" aria-controls="midi-panel"><svg><use href="#i-midi"/></svg><span id="midi-summary">Connect MPC</span><span class="phone-label">MIDI</span><span id="midi-light" class="status-light"></span></button>
+    </nav>
+  </header>
+  <section id="download-panel" class="download-panel" data-listening-shortcuts="off" aria-label="Audio downloads" hidden>
+    <div class="download-panel-head"><div><h2>Audio downloads</h2><p id="download-summary">Preparing the downloader…</p></div><button id="downloads-close" aria-label="Close downloads">Close</button></div>
+    <div class="download-filters" role="group" aria-label="Show downloads"><button data-download-filter="attention" aria-pressed="false">Needs attention <span id="attention-count">0</span></button><button data-download-filter="active" aria-pressed="false">In progress <span id="active-count">0</span></button><button data-download-filter="ready" aria-pressed="false">Downloaded <span id="ready-count">0</span></button><button data-download-filter="all" aria-pressed="false">All <span id="all-count">0</span></button></div>
+    <div class="collection-settings"><form id="collection-form"><label>Record collection folder<input id="collection-directory" type="text" autocomplete="off" spellcheck="false" placeholder="Full folder path"></label><button type="button" id="collection-choose" hidden>Choose folder…</button><button type="submit" id="collection-save">Use folder</button><button type="button" id="collection-open" hidden>Open folder</button></form><p id="collection-message" role="status">New downloads go here. Changing this keeps existing audio available.</p></div>
+    <div id="download-jobs" class="download-jobs"></div>
+    <div class="download-panel-foot"><p id="download-location">Saved as FLAC in Record Room’s data/audio folder. Completed records load automatically.</p><button id="download-cancel-all">Cancel pending</button></div>
+  </section>
+  <section id="midi-panel" class="midi-panel midi-workspace" data-listening-shortcuts="off" aria-label="MIDI hardware setup" hidden>
+    <div class="panel-heading"><div><h2>Hardware controls</h2><p>Learn your MPC pads and Q-Links. Pad mappings stay saved for each MIDI input.</p></div><button id="midi-close" aria-label="Close MIDI setup">Close</button></div>
+    <div class="midi-columns"><div class="midi-connection">
+      <label>MIDI input<select id="midi-port"><option value="">Finding inputs…</option></select></label><div class="midi-input-actions"><button id="midi-connect">Connect input</button><button id="midi-refresh">Refresh inputs</button></div>
+      <button id="midi-enable-audio">Enable pad audio</button><p id="midi-audio-help">Enable once if your browser is silent. Downloaded audio gives the tightest pad response; YouTube has streaming latency.</p>
+
+    </div><div class="midi-pad-workspace"><div class="pad-mapping-heading"><div><h3>MPC pads</h3><p id="pad-profile-summary">Connect an input to learn its 16 pads.</p></div><button id="learn-pads">Learn all 16</button></div>
+      <p id="pad-learn-message" role="status">Choose Learn all 16, or select a pad below to change its mapping. Pad 1 is at the bottom left.</p><button id="cancel-pad-learn" hidden>Cancel learning</button>
+      <div id="midi-pad-grid" class="midi-pad-grid" role="group" aria-label="MPC 16 pad mappings"></div>
+      <p class="pad-mapping-help">1–12: twelve drops across the record. 13: hold a random drop. 14: hold to play. 15: instant stop. 16: start/stop. For 13 and 14, learning checks both the press and release.</p>
+    </div><div class="qlink-setup" id="qlink-setup">      <h3>Q-Link sliders</h3><p>Q1 scans the record. Q2 changes pitch and speed.</p><div class="learn-buttons"><button id="learn-scan">Learn Scan</button><button id="learn-pitch">Learn Pitch</button></div><p id="midi-message" role="status">No input connected.</p>
+      <a href="https://www7a.biglobe.ne.jp/~mpc1000/128xl/qlink_v2_os3_e.htm" target="_blank" rel="noopener noreferrer">JJOS3 Q-Link setup guide</a></div></div>
+  </section>
+  <section id="sources-panel" class="sources-panel" data-listening-shortcuts="off" aria-label="Channel sources" hidden>
+    <div class="sources-heading"><div><h2>Channel sources</h2><p>Add collectors you like. Preview their recent records before keeping them in your collection. Removing a source keeps saved records and downloaded audio.</p></div><button id="sources-close" type="button" aria-label="Close channel sources">Close</button></div>
+    <form id="source-form" class="source-form"><label>YouTube channel address<input id="source-url" type="url" required maxlength="300" placeholder="https://www.youtube.com/@collector"></label><label>Name <span class="visually-hidden">optional</span><input id="source-name" maxlength="160" placeholder="Optional"></label><label>Genres<input id="source-genres" maxlength="720" placeholder="Soul, Jazz, Funk"></label><button id="source-submit" class="source-primary" type="submit">Add channel</button><button id="source-cancel-edit" type="button" hidden>Cancel edit</button></form>
+    <div class="sources-tools"><label>Find a source<input id="sources-search" type="search" placeholder="Channel name, address or genre"></label><label>Show<select id="sources-filter"><option value="all">All sources</option><option value="ready">Working feeds</option><option value="failed">Check address</option><option value="pending">Needs an address</option></select></label><span id="sources-count"></span></div>
+    <div class="sources-message-row"><p id="sources-message" role="status"></p><button id="source-undo" type="button" hidden>Undo removal</button></div><div id="sources-list" class="sources-list" role="region" aria-label="Saved channel sources"></div><button id="sources-more" type="button" hidden>Show more</button>
+    <section id="source-preview" class="source-preview" aria-label="Channel preview" hidden><div class="source-preview-heading"><div><h3 id="source-preview-title"></h3><a id="source-preview-link" target="_blank" rel="noopener noreferrer">Open channel on YouTube</a></div><button id="source-preview-close" type="button">Close preview</button></div><div id="source-preview-records" class="source-preview-records"></div></section>
+  </section>
+  <main class="room">
+    <section class="listening" id="listening-surface" aria-label="Record player" tabindex="-1">
+      <div class="turntable">
+      <div id="deck" class="deck">
+        <svg class="supplied-chassis" viewBox="20 65 1200 1060" aria-hidden="true"><image href="assets/turntable/chassis.png" width="1254" height="1254"/></svg><div class="chassis-edge"></div><div class="deck-screw screw-tl"></div><div class="deck-screw screw-tr"></div><div class="deck-screw screw-bl"></div><div class="deck-screw screw-br"></div>
+        <div class="deck-brand"><strong>Record Room</strong><span>Direct drive listening system</span></div>
+        <div class="deck-model">RR–01<span>Direct drive · digital crate</span></div>
+        <div class="platter-well"><div class="platter-rim" id="platter-rim"><canvas id="strobe-pattern" width="1200" height="1200" aria-hidden="true"></canvas></div></div>
+        <div class="record-surface" id="record-surface" aria-label="Record. Drag across the grooves to move the needle.">
+          <svg class="supplied-vinyl" viewBox="70 168 900 920" preserveAspectRatio="none" aria-hidden="true"><image href="assets/turntable/vinyl.png" width="1254" height="1254"/></svg><canvas id="grooves" width="1000" height="1000"></canvas><div class="vinyl-reflection"></div>
+          <div class="runout-band" aria-hidden="true"></div><div class="record-label" id="record-label"><div class="label-ring"></div><span class="label-name">Record Room</span><span class="label-line"></span><span id="label-artist"></span><strong id="label-title">Your listening crate</strong><span id="label-meta"></span></div>
+          <span class="spindle"></span><div id="drop-position" class="drop-position" hidden>0:00</div>
+        </div>
+        <svg id="arm" class="tonearm" viewBox="20 65 1200 1060" role="slider" tabindex="0" aria-label="Tonearm position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Beginning of record"><g id="arm-moving"><g transform="translate(0 -8)"><image id="arm-counterweight" href="assets/turntable/tonearm-moving.png" width="1254" height="1254"/><path class="arm-hit-area" d="M1052 175V430C1055 510 1092 610 1071 700S1023 787 1018 807L940 942"/></g></g></svg>
+        <svg class="hardware-lights" viewBox="20 65 1200 1060" aria-hidden="true"><image href="assets/turntable/lights.png" width="1254" height="1254"/></svg>
+        <button id="cue-button" class="cue-lever" aria-pressed="false" title="Lift or lower the needle"><span></span><small>Cue</small></button>
+        <div class="pitch-unit"><span id="deck-pitch-label">Pitch adj.</span><span class="pitch-scale">+8<br>+4<br>0<br>−4<br>−8</span><input id="deck-pitch" disabled type="range" min="-8" max="8" step="0.1" value="0" aria-label="Pitch adjustment" orient="vertical"><span class="pitch-focus-ring" aria-hidden="true"></span><svg class="pitch-thumb-art" viewBox="20 65 1200 1060" aria-hidden="true"><g id="pitch-thumb"><image href="assets/turntable/tempo-slider.png" width="1254" height="1254"/></g></svg><span id="pitch-led"></span><button id="pitch-reset" disabled title="Reset pitch">Reset</button></div>
+        <div class="power-knob"><span></span><small>Power</small></div><div class="strobe-lamp"></div>
+        <button id="start-button" class="start-button" aria-label="Start or stop record"><span class="button-led"></span><svg><use href="#i-play"/></svg><span>Start / stop</span></button>
+        <div class="speed-buttons"><button id="speed-33" disabled class="active" aria-pressed="true">33</button><button id="speed-45" disabled aria-pressed="false">45</button></div>
+        <div class="deck-caption"><span id="groove-mode">Groove texture</span><span id="groove-help">Attach audio to reveal quiet passages</span></div>
+      </div>
+      <div class="display-module" id="display-module"><div class="matrix-bezel"><canvas id="matrix" width="192" height="288" role="img" aria-label="Turntable display: stopped"></canvas></div><button class="jog-wheel" id="display-play" aria-label="Start or stop record"><svg><use href="#i-play"/></svg></button><div class="speaker-grille" aria-hidden="true"></div><div class="track-identity" id="track-identity"><h1 id="record-title">Put a record on.</h1><p id="record-artist"></p><p id="record-year"></p></div></div>
+      </div>
+      <div class="transport">
+        <div class="transport-buttons"><button id="prev-button" class="icon-button" title="Previous record"><svg><use href="#i-prev"/></svg></button><button id="play-button" class="play-button" aria-label="Play record" aria-keyshortcuts="Space" title="Start or stop record (Space)"><svg><use href="#i-play"/></svg></button><button id="next-button" class="icon-button" title="Next record"><svg><use href="#i-next"/></svg></button></div>
+        <div class="timeline"><div class="time-row"><span id="elapsed">0:00</span><span id="time-hint"><kbd>Space</kbd> start / stop <kbd>R</kbd> random</span><span id="duration">—:—</span></div><input id="position" type="range" min="0" max="1000" step="1" value="0" aria-label="Playback position"></div>
+        <button id="keep-button" class="keep-button"><svg><use href="#i-mark"/></svg><span>Keep this bit</span></button>
+      </div>
+      <section class="kept-strip" aria-label="Kept moments"><h2>Kept moments</h2><div id="moments" class="moments"></div><p id="moments-help">Hear something good? Keep its place.</p><p class="moment-undo" id="moment-undo" hidden><span id="moment-undo-message"></span><button id="undo-moment" data-listening-shortcuts="off">Undo</button></p></section>
+      <div class="record-jumps" role="group" aria-label="Jump through record"><span>Jump through record <small>0 = start · 1–9 = 10–90%</small></span><button type="button" disabled data-record-jump="0" aria-keyshortcuts="0" aria-label="Jump to beginning" title="0% (0)">0</button><button type="button" disabled data-record-jump="1" aria-keyshortcuts="1" aria-label="Jump to 10 percent" title="10% (1)">1</button><button type="button" disabled data-record-jump="2" aria-keyshortcuts="2" aria-label="Jump to 20 percent" title="20% (2)">2</button><button type="button" disabled data-record-jump="3" aria-keyshortcuts="3" aria-label="Jump to 30 percent" title="30% (3)">3</button><button type="button" disabled data-record-jump="4" aria-keyshortcuts="4" aria-label="Jump to 40 percent" title="40% (4)">4</button><button type="button" disabled data-record-jump="5" aria-keyshortcuts="5" aria-label="Jump to 50 percent" title="50% (5)">5</button><button type="button" disabled data-record-jump="6" aria-keyshortcuts="6" aria-label="Jump to 60 percent" title="60% (6)">6</button><button type="button" disabled data-record-jump="7" aria-keyshortcuts="7" aria-label="Jump to 70 percent" title="70% (7)">7</button><button type="button" disabled data-record-jump="8" aria-keyshortcuts="8" aria-label="Jump to 80 percent" title="80% (8)">8</button><button type="button" disabled data-record-jump="9" aria-keyshortcuts="9" aria-label="Jump to 90 percent" title="90% (9)">9</button></div>
+      <div class="control-strip">
+        <div class="scan-control"><div class="control-heading"><label for="scan-mode">Scan record</label><button id="scan-learn-status" class="learn-indicator" title="Set up the first MPC Q-Link">Learn Q1</button></div><select id="scan-mode" aria-label="Scan range"><option value="whole">Whole record</option><option value="fine">30-second window</option></select><output id="scan-readout" aria-live="off">Needle at 0:00</output></div>
+        <div class="speed-control"><div class="control-heading"><label for="vinyl-pitch" id="rate-label">Pitch</label><button id="pitch-learn-status" class="learn-indicator" title="Set up the second MPC Q-Link">Learn Q2</button></div><div class="speed-input-row"><input id="vinyl-pitch" type="range" min="-8" max="8" step="0.05" value="0" aria-label="Vinyl pitch" hidden><select id="stream-rate" aria-label="YouTube playback speed"><option value="1">1× normal</option></select><output id="pitch-readout" aria-live="off">1×</output><button id="speed-reset" title="Reset to normal speed" aria-label="Reset to normal speed">Reset</button></div><span id="speed-help" class="control-help">YouTube · stepped speed</span></div>
+        <div class="rpm-control"><label for="record-rpm">Record speed</label><select id="record-rpm" aria-label="Record speed" disabled><option value="33">33⅓ rpm</option><option value="45">45 rpm</option></select><span class="control-help">Pitch follows platter speed</span></div><div class="motor-control"><label for="motor-feel">Motor feel</label><select id="motor-feel" disabled><option value="quick">Quick</option><option value="natural" selected>Natural</option><option value="heavy">Heavy</option></select><div class="audio-choice"><button id="local-button" class="attach-button">Attach audio for vinyl feel</button><button id="stream-button" class="attach-button" hidden>Use YouTube</button></div></div>
+      </div>
+      <div class="listening-feedback"><span id="motor-state">Stopped</span><p id="status" role="status" aria-live="polite">Choose a sleeve or drop the needle.</p></div>
+      <div class="playback-recovery" id="playback-recovery" hidden><button id="retry-record">Retry record</button><a id="recovery-youtube" target="_blank" rel="noopener noreferrer">Open YouTube</a></div>
+      <div class="audio-actions"><div><strong id="audio-availability">Stream ready</strong><span id="audio-explanation">Download the audio for continuous vinyl pitch.</span></div><button id="download-record"><svg><use href="#i-download"/></svg><span>Download audio</span></button></div>
+      <details class="source-details" id="source-details"><summary>Audio source & shortcuts<svg><use href="#i-chevron"/></svg></summary><div class="source-and-notes"><div class="source-player"><div id="youtube-player"></div><div id="local-source" hidden><span class="local-disc"></span><strong>Local audio</strong><span id="local-filename"></span></div></div><div class="notes-area"><div class="source-line"><span id="source-kind">YouTube source</span><a id="source-link" href="https://sampledigging.online/" target="_blank" rel="noopener noreferrer">Open source</a></div><p class="shortcut-help"><kbd>Space</kbd> start / stop <kbd>R</kbd> random record <kbd>0–9</kbd> jump <kbd>←</kbd><kbd>→</kbd> nudge <kbd>M</kbd> keep a moment</p></div></div></details>
+    </section>
+    <aside class="crate" id="crate-surface" aria-label="Your record crate" tabindex="-1">
+      <section class="now-playing" aria-label="Record on the deck" id="now-playing" hidden>
+        <div class="now-playing-art"><span class="now-playing-fallback" aria-hidden="true"></span><img id="now-playing-image" alt=""><span class="visually-hidden" id="now-playing-state">On the deck</span><button type="button" class="now-playing-save" id="now-playing-save" aria-pressed="false"><img src="assets/crate-add.png" alt=""><span>Add to crate</span></button></div>
+      </section>
+      <div class="library-tabs" role="tablist" aria-label="Record library"><button id="tab-crate" role="tab" aria-selected="true" aria-controls="library-panel">My Crate</button><button id="tab-dig" role="tab" aria-selected="false" aria-controls="library-panel" tabindex="-1">Dig</button></div>
+      <div id="library-panel" class="library-panel" role="tabpanel" aria-labelledby="tab-crate">
+      <span id="crate-count" class="visually-hidden" aria-live="polite">77 records</span>
+      <label class="crate-search"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Artist, record or channel" aria-label="Search your crate"></label>
+      <div class="filters"><label><span>Genre</span><select id="genre-filter"><option value="">Every genre</option></select></label><label><span>Year</span><select id="year-filter"><option value="">Every year</option><option value="1960">1960s</option><option value="1970">1970s</option><option value="1980">1980s</option><option value="1990">1990s</option><option value="2000">2000s onward</option><option value="unknown">Unknown</option></select></label></div>
+      <div class="dig-toolbar" id="dig-toolbar" hidden><p id="dig-count" aria-live="polite"></p><button id="keep-digging">Keep digging <kbd>D</kbd></button></div>
+
+      <p id="pawn-notice" class="pawn-notice" hidden><span id="pawn-message"></span><button id="undo-pawn" data-listening-shortcuts="off">Undo</button></p><div id="record-grid" class="record-grid"></div><div class="crate-end" id="crate-end">Your favourites, ready to rediscover.</div>
+      <details class="dig-source" id="dig-source" hidden><summary id="dig-source-summary">Source: imported records</summary><p id="dig-source-message">Loading channel sources…</p><p id="dig-channel-progress" role="status" hidden></p><button id="refresh-channels">Check channels</button><button id="import-channels">Import channel list</button><button id="import-dig">Import discovery records</button><p>Channel genre tags are broad hints. Years come from video titles, not upload dates. Feeds expose recent uploads; cached records remain available.</p></details>
+      </div>
+    </aside>
+  </main>
+  <nav class="mobile-dock" aria-label="Listening controls"><div class="dock-record"><strong id="dock-title">Choose a record</strong><span id="dock-state">Stopped</span></div><button id="dock-play" aria-label="Start record"><svg><use href="#i-play"/></svg><span id="dock-play-label">Play</span></button><button id="dock-keep"><svg><use href="#i-mark"/></svg><span>Keep</span></button><a href="#listening-surface" data-surface="deck">Deck</a><a href="#crate-surface" data-surface="crate">Crate</a></nav>
+  <input id="json-file" type="file" accept="application/json,.json" hidden><input id="audio-file" type="file" accept="audio/*,.wav,.flac,.mp3,.aiff,.aif" hidden>
+  <link rel="stylesheet" href="library.css">
+  <script type="module" src="app.js"></script>
+</body></html>

@@ -1,0 +1,46 @@
+appId: music.recordroom.desktop
+productName: Record Room
+asar: true
+directories:
+  output: dist
+files:
+  - desktop/main.cjs
+  - desktop/preload.cjs
+  - desktop/policy.cjs
+  - package.json
+extraResources:
+  - from: .build/resources
+    to: .
+artifactName: Record-Room-${version}-${os}-${arch}.${ext}
+win:
+  target:
+    - nsis
+    - portable
+  icon: desktop/icon.png
+  signExecutable: false
+nsis:
+  artifactName: Record-Room-${version}-Windows-Setup-${arch}.${ext}
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Record Room
+portable:
+  artifactName: Record-Room-${version}-Windows-Portable-${arch}.${ext}
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.music
+  icon: desktop/icon.png
+linux:
+  target:
+    - AppImage
+    - tar.gz
+  category: AudioVideo
+  icon: desktop/icon.png
+  executableName: record-room
+  desktop:
+    entry:
+      Name: Record Room
+      Comment: A listening deck for your record collection

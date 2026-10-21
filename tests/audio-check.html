@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Record Room · Audio checks</title>
+  <style>
+    :root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #161918; color: #eceee9; }
+    body { max-width: 950px; margin: 48px auto; padding: 0 24px; }
+    h1 { margin-bottom: 8px; }
+    p { color: #bac2bb; }
+    #summary { padding: 16px; border: 1px solid #5c6b61; background: #232b26; border-radius: 8px; }
+    body[data-result="pass"] #summary { color: #c3f1c3; border-color: #669368; }
+    body[data-result="fail"] #summary { color: #ffc6be; border-color: #bc7369; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #3d4940; }
+    th { color: #c3cfca; }
+    td:last-child { font-weight: 700; }
+    .pass { color: #b6eeb9; } .fail { color: #ffb7b0; }
+    code { color: #e4dcc0; }
+  </style>
+</head>
+<body data-result="running">
+  <h1>Turntable audio checks</h1>
+  <p>Real Web Audio rendering of a 440 Hz sine wave. These checks render into memory and never connect to an audio output.</p>
+  <p id="summary" role="status">Rendering the speed sweep and interrupted pitch ramp…</p>
+  <table>
+    <thead><tr><th scope="col">Check</th><th scope="col">Expected</th><th scope="col">Measured</th><th scope="col">Result</th></tr></thead>
+    <tbody id="results"></tbody>
+  </table>
+  <p id="details"></p>
+  <script type="module" src="./audio-check.js"></script>
+</body>
+</html>

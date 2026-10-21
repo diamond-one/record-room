@@ -1,6 +1,7 @@
 appId: music.recordroom.desktop
 productName: Record Room
 asar: true
+publish: null
 directories:
   output: dist
 files:

@@ -1,0 +1,54 @@
+name: Publish installers
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful Desktop builds run ID
+        required: true
+        type: string
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        id: build
+        env:
+          BUILD_RUN_ID: ${{ inputs.build_run_id }}
+        with:
+          script: |
+            const id = process.env.BUILD_RUN_ID;
+            if (!/^\d+$/.test(id)) throw new Error('Choose a numeric build run ID.');
+            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: id});
+            if (run.name !== 'Desktop builds' || run.head_branch !== 'main' || run.event !== 'workflow_dispatch' || run.status !== 'completed' || run.conclusion !== 'success') {
+              throw new Error('Only a successful, manually dispatched main-branch Desktop builds run can be released.');
+            }
+            core.setOutput('sha', run.head_sha);
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.build.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.build_run_id }}
+          pattern: record-room-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish native downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_SHA: ${{ steps.build.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v$(node -p "require('./package.json').version")"
+          mapfile -d '' files < <(find release-assets -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.zip' -o -name '*.AppImage' -o -name '*.tar.gz' \) -print0)
+          if [ "${#files[@]}" -lt 8 ]; then echo 'Missing platform installers.'; exit 1; fi
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$BUILD_SHA" --title "Record Room $tag" --draft --notes "A turntable and personal record crate for Windows, macOS and Linux. Includes MIDI Learn, channel source management, a chosen download folder, and permanent filtering of unavailable uploads. Installers are unsigned. macOS and Linux packages are built on native runners; hardware MIDI and desktop playback were verified on Windows."
+          fi
+          gh release upload "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest

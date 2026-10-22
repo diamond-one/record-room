@@ -12,7 +12,7 @@ Desktop builds target **Windows** (installer or portable), **macOS** (Apple Sili
 
 The desktop app includes its local service, downloader and audio converter. Python, Node.js and FFmpeg do not need separate installation. Discovery, streaming and new downloads need internet; completed audio stays on your computer.
 
-![Record Room desktop](docs/record-room.png)
+![Record Room playing a saved record in Dig](docs/record-room.jpg)
 
 ## Start digging
 
